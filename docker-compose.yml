@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+    workspace:
+        image: registry.gitlab.com/eltex/cyber-extruder/cyber-extruder-api/workspace:7.4-fpm
+        env_file: development/.env
+        volumes:
+            - ./:/var/www/html/
+        environment:
+            - GITHUB_API_TOKEN
+            - PHP_ENABLE_XDEBUG
+            - XDEBUG_CONFIG
+
+    nginx:
+        image: nginx:stable
+        volumes:
+            - ./:/var/www/html/
+            - ./development/docker/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+        ports:
+            - "127.0.0.1:8080:80"
+
+    db:
+        image: postgres:13.1
+        volumes:
+            - ./development/docker/tmp/db:/var/lib/postgresql/data
+            - ./development/docker/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+        ports:
+            - "127.0.0.1:5432:5432"
+        environment:
+            POSTGRES_USER: db
+            POSTGRES_DB: db
+            POSTGRES_PASSWORD: db
